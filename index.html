@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitik Nglayap - Web Version</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        #gameContainer {
+            position: relative;
+            text-align: center;
+        }
+
+        canvas {
+            background-color: #87CEEB; /* Warna Langit Blue Sky */
+            border: 4px solid #fff;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.5);
+            display: block;
+        }
+
+        .info-panel {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <h1 style="margin: 5px 0;">🐔 Pitik Nglayap</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div class="info-panel">
+        <strong>Kontrol:</strong> Tekan Tombol <strong>SPASI</strong> atau <strong>TAP LAYAR</strong> untuk melompat.
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Konfigurasi Karakter Pitik
+    const pitik = {
+        x: 100,
+        y: 310,
+        width: 40,
+        height: 40,
+        color: "#FFA500", // Oranye
+        velocityY: 0,
+        gravity: 0.6,
+        jumpStrength: -12,
+        isJumping: false
+    };
+
+    // Konfigurasi Rintangan
+    const obstacle = {
+        x: 800,
+        y: 300,
+        width: 30,
+        height: 50,
+        color: "#8B4513", // Cokelat
+        speed: 7
+    };
+
+    // Variabel Game
+    let score = 0;
+    let level = 1;
+    let gameOver = false;
+
+    // Deteksi Input (Keyboard & Sentuhan HP)
+    window.addEventListener("keydown", function(e) {
+        if (e.code === "Space") {
+            lompat();
+        }
+    });
+
+    canvas.addEventListener("touchstart", function() {
+        lompat();
+    });
+
+    function lompat() {
+        if (!pitik.isJumping && !gameOver) {
+            pitik.velocityY = pitik.jumpStrength;
+            pitik.isJumping = true;
+        }
+        if (gameOver) {
+            resetGame();
+        }
+    }
+
+    function resetGame() {
+        gameOver = false;
+        score = 0;
+        level = 1;
+        obstacle.speed = 7;
+        obstacle.x = canvas.width;
+        pitik.y = 310;
+        pitik.velocityY = 0;
+        update();
+    }
+
+    // Loop Game Utama
+    function update() {
+        if (gameOver) {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#FF0000";
+            ctx.font = "30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("PITIK NABRAK!", canvas.width / 2, canvas.height / 2 - 20);
+            
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "20px Arial";
+            ctx.fillText("Tekan SPASI atau TAP untuk Baleni (Mulai Ulang)", canvas.width / 2, canvas.height / 2 + 20);
+            return;
+        }
+
+        // --- 1. LOGIKA FISIKA & PERGERAKAN ---
+        pitik.velocityY += pitik.gravity;
+        pitik.y += pitik.velocityY;
+
+        // Batasan tanah agar tidak amblas
+        if (pitik.y >= 310) {
+            pitik.y = 310;
+            pitik.isJumping = false;
+        }
+
+        // Gerakan Rintangan
+        obstacle.x -= obstacle.speed;
+
+        // Jika rintangan lolos ke kiri
+        if (obstacle.x < -obstacle.width) {
+            obstacle.x = canvas.width;
+            score += 10;
+
+            // Sistem Naik Level berdasarkan Skor
+            if (score >= 50 && level === 1) { level = 2; obstacle.speed = 9; }
+            else if (score >= 100 && level === 2) { level = 3; obstacle.speed = 12; }
+            else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 15; }
+        }
+
+        // --- 2. DETEKSI TABRAKAN (COLLISION) ---
+        if (
+            pitik.x < obstacle.x + obstacle.width &&
+            pitik.x + pitik.width > obstacle.x &&
+            pitik.y < obstacle.y + obstacle.height &&
+            pitik.y + pitik.height > obstacle.y
+        ) {
+            gameOver = true;
+        }
+
+        // --- 3. PROSES GAMBAR (RENDER VISUAL) ---
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan layar
+
+        // Gambar Tanah Hijau
+        ctx.fillStyle = "#228B22";
+        ctx.fillRect(0, 350, canvas.width, 50);
+
+        // Gambar Karakter Pitik (Kotak Oranye)
+        ctx.fillStyle = pitik.color;
+        ctx.fillRect(pitik.x, pitik.y, pitik.width, pitik.height);
+        
+        // Jengger Ayam (Pemanis visual)
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(pitik.x + 25, pitik.y - 10, 10, 10);
+
+        // Gambar Rintangan (Kotak Cokelat)
+        ctx.fillStyle = obstacle.color;
+        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+        // Teks Skor dan Level
+        ctx.fillStyle = "#000000";
+        ctx.font = "20px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText("Gabah (Skor): " + score, 20, 30);
+        ctx.fillText("Level: " + level, 20, 60);
+
+        requestAnimationFrame(update);
+    }
+
+    // Jalankan game pertama kali
+    update();
+</script>
+
+</body>
+</html>
