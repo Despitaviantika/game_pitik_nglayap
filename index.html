@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pitik Nglayap - Web Version</title>
+    <title>Pitik Nglayap - Premium Version</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #222;
-            font-family: 'Arial', sans-serif;
+            background-color: #111;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,26 +23,41 @@
             text-align: center;
         }
 
+        h1 {
+            margin: 5px 0 15px 0;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #FFA500, #FF4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         canvas {
-            background-color: #87CEEB; /* Warna Langit Blue Sky */
-            border: 4px solid #fff;
-            box-shadow: 0px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            border: 4px solid #444;
+            box-shadow: 0px 20px 40px rgba(0,0,0,0.8);
             display: block;
         }
 
         .info-panel {
-            margin-top: 10px;
-            font-size: 16px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
 
 <div id="gameContainer">
-    <h1 style="margin: 5px 0;">🐔 Pitik Nglayap</h1>
+    <h1>🐔 Pitik Nglayap</h1>
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     <div class="info-panel">
-        <strong>Kontrol:</strong> Tekan Tombol <strong>SPASI</strong> atau <strong>TAP LAYAR</strong> untuk melompat.
+        🎮 <strong>Kontrol:</strong> Tekan Tombol <strong>SPASI</strong> atau <strong>TAP LAYAR</strong> untuk melompat.
     </div>
 </div>
 
@@ -50,26 +65,65 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
+    // Tema per level
+    const themes = {
+        1: { // Pagi Ceria
+            skyTop: "#3a7bd5",
+            skyBottom: "#3a6073",
+            ground: "#2e7d32",
+            groundLine: "#1b5e20",
+            rockColor: "#7f8c8d",
+            rockShadow: "#95a5a6",
+            hasStars: false
+        },
+        2: { // Sore Senja
+            skyTop: "#e65c00",
+            skyBottom: "#F9D423",
+            ground: "#d84315",
+            groundLine: "#bf360c",
+            rockColor: "#8d6e63",
+            rockShadow: "#a1887f",
+            hasStars: false
+        },
+        3: { // Malam Berbintang
+            skyTop: "#0f2027",
+            skyBottom: "#203a43",
+            ground: "#1b5e20",
+            groundLine: "#0d230d",
+            rockColor: "#34495e",
+            rockShadow: "#5d6d7e",
+            hasStars: true
+        },
+        4: { // Dimensi Neon/Mistis
+            skyTop: "#41295a",
+            skyBottom: "#2F0743",
+            ground: "#4a148c",
+            groundLine: "#311b92",
+            rockColor: "#111",
+            rockShadow: "#00e5ff", // glow neon
+            hasStars: true
+        }
+    };
+
     // Konfigurasi Karakter Pitik
     const pitik = {
         x: 100,
         y: 310,
-        width: 40,
-        height: 40,
-        color: "#FFA500", // Oranye
+        width: 44,
+        height: 44,
         velocityY: 0,
         gravity: 0.6,
-        jumpStrength: -12,
-        isJumping: false
+        jumpStrength: -12.5,
+        isJumping: false,
+        wingAngle: 0
     };
 
-    // Konfigurasi Rintangan
+    // Konfigurasi Rintangan Batu
     const obstacle = {
         x: 800,
-        y: 300,
-        width: 30,
-        height: 50,
-        color: "#8B4513", // Cokelat
+        y: 295,
+        width: 35,
+        height: 55,
         speed: 7
     };
 
@@ -77,15 +131,28 @@
     let score = 0;
     let level = 1;
     let gameOver = false;
+    let stars = [];
 
-    // Deteksi Input (Keyboard & Sentuhan HP)
+    // Membuat bintang acak untuk malam hari
+    for (let i = 0; i < 40; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * 200,
+            size: Math.random() * 2,
+            alpha: Math.random()
+        });
+    }
+
+    // Input Handlers
     window.addEventListener("keydown", function(e) {
         if (e.code === "Space") {
+            e.preventDefault();
             lompat();
         }
     });
 
-    canvas.addEventListener("touchstart", function() {
+    canvas.addEventListener("touchstart", function(e) {
+        e.preventDefault();
         lompat();
     });
 
@@ -110,20 +177,128 @@
         update();
     }
 
+    // Menggambar Pitik
+    function drawPitik() {
+        ctx.save();
+        ctx.translate(pitik.x, pitik.y);
+
+        // Tubuh utama
+        ctx.fillStyle = "#FF9800";
+        ctx.beginPath();
+        ctx.arc(22, 22, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Jengger (Comb)
+        ctx.fillStyle = "#E53935";
+        ctx.beginPath();
+        ctx.arc(15, -2, 7, 0, Math.PI * 2);
+        ctx.arc(25, -5, 8, 0, Math.PI * 2);
+        ctx.arc(35, -1, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Paruh
+        ctx.fillStyle = "#FFEB3B";
+        ctx.beginPath();
+        ctx.moveTo(38, 16);
+        ctx.lineTo(48, 22);
+        ctx.lineTo(38, 26);
+        ctx.closePath();
+        ctx.fill();
+
+        // Mata Besar
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath();
+        ctx.arc(28, 14, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#000000";
+        ctx.beginPath();
+        ctx.arc(30, 14, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sayap (Mengepak pelan ketika lompat)
+        if (pitik.isJumping) {
+            pitik.wingAngle = Math.sin(Date.now() * 0.05) * 10;
+        } else {
+            pitik.wingAngle = 0;
+        }
+        ctx.save();
+        ctx.translate(10, 24);
+        ctx.rotate((pitik.wingAngle * Math.PI) / 180);
+        ctx.fillStyle = "#F57C00";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 12, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Kaki kuning
+        ctx.strokeStyle = "#FFEB3B";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(15, 38);
+        ctx.lineTo(15, 44);
+        ctx.moveTo(25, 38);
+        ctx.lineTo(25, 44);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    // Menggambar Rintangan Batu Estetik
+    function drawObstacle(theme) {
+        ctx.save();
+        ctx.fillStyle = theme.rockColor;
+        
+        // Buat batu berongga/tidak beraturan agar lebih alami
+        ctx.beginPath();
+        ctx.moveTo(obstacle.x + obstacle.width * 0.2, obstacle.y);
+        ctx.lineTo(obstacle.x + obstacle.width * 0.8, obstacle.y + 5);
+        ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height * 0.5);
+        ctx.lineTo(obstacle.x + obstacle.width * 0.9, obstacle.y + obstacle.height);
+        ctx.lineTo(obstacle.x + obstacle.width * 0.1, obstacle.y + obstacle.height);
+        ctx.lineTo(obstacle.x, obstacle.y + obstacle.height * 0.4);
+        ctx.closePath();
+        ctx.fill();
+
+        // Highlight/Shadow di Batu
+        ctx.strokeStyle = theme.rockShadow;
+        ctx.lineWidth = 2.5;
+        if (level === 4) {
+            // Efek neon glow di level 4
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = theme.rockShadow;
+        }
+        ctx.stroke();
+
+        // Garis retakan alami di dalam batu
+        ctx.beginPath();
+        ctx.moveTo(obstacle.x + obstacle.width * 0.4, obstacle.y + 10);
+        ctx.lineTo(obstacle.x + obstacle.width * 0.5, obstacle.y + obstacle.height * 0.6);
+        ctx.lineTo(obstacle.x + obstacle.width * 0.3, obstacle.y + obstacle.height * 0.8);
+        ctx.strokeStyle = "rgba(0,0,0,0.2)";
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
     // Loop Game Utama
     function update() {
+        const currentTheme = themes[level] || themes[4];
+
         if (gameOver) {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.fillStyle = "#FF0000";
-            ctx.font = "30px Arial";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#FF0000";
+            ctx.fillStyle = "#FF3333";
+            ctx.font = "bold 36px Arial";
             ctx.textAlign = "center";
             ctx.fillText("PITIK NABRAK!", canvas.width / 2, canvas.height / 2 - 20);
             
+            ctx.shadowBlur = 0;
             ctx.fillStyle = "#FFFFFF";
             ctx.font = "20px Arial";
-            ctx.fillText("Tekan SPASI atau TAP untuk Baleni (Mulai Ulang)", canvas.width / 2, canvas.height / 2 + 20);
+            ctx.fillText("Tekan SPASI atau TAP untuk Baleni", canvas.width / 2, canvas.height / 2 + 30);
             return;
         }
 
@@ -131,27 +306,24 @@
         pitik.velocityY += pitik.gravity;
         pitik.y += pitik.velocityY;
 
-        // Batasan tanah agar tidak amblas
         if (pitik.y >= 310) {
             pitik.y = 310;
             pitik.isJumping = false;
         }
 
-        // Gerakan Rintangan
         obstacle.x -= obstacle.speed;
 
-        // Jika rintangan lolos ke kiri
         if (obstacle.x < -obstacle.width) {
             obstacle.x = canvas.width;
             score += 10;
 
-            // Sistem Naik Level berdasarkan Skor
+            // Sistem Naik Level
             if (score >= 50 && level === 1) { level = 2; obstacle.speed = 9; }
-            else if (score >= 100 && level === 2) { level = 3; obstacle.speed = 12; }
-            else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 15; }
+            else if (score >= 100 && level === 2) { level = 3; obstacle.speed = 11; }
+            else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 14; }
         }
 
-        // --- 2. DETEKSI TABRAKAN (COLLISION) ---
+        // --- 2. DETEKSI TABRAKAN ---
         if (
             pitik.x < obstacle.x + obstacle.width &&
             pitik.x + pitik.width > obstacle.x &&
@@ -162,35 +334,51 @@
         }
 
         // --- 3. PROSES GAMBAR (RENDER VISUAL) ---
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Bersihkan layar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Gambar Tanah Hijau
-        ctx.fillStyle = "#228B22";
+        // Gambar Gradasi Langit Estetik
+        let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        skyGradient.addColorStop(0, currentTheme.skyTop);
+        skyGradient.addColorStop(1, currentTheme.skyBottom);
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Efek Bintang berkelip di Malam Hari/Angkasa
+        if (currentTheme.hasStars) {
+            stars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+                // Membuat kedipan halus
+                star.alpha += (Math.random() - 0.5) * 0.1;
+                if (star.alpha < 0.1) star.alpha = 0.1;
+                if (star.alpha > 1) star.alpha = 1;
+            });
+        }
+
+        // Gambar Tanah (dengan garis pembatas rumput lembut)
+        ctx.fillStyle = currentTheme.ground;
         ctx.fillRect(0, 350, canvas.width, 50);
+        ctx.fillStyle = currentTheme.groundLine;
+        ctx.fillRect(0, 350, canvas.width, 4);
 
-        // Gambar Karakter Pitik (Kotak Oranye)
-        ctx.fillStyle = pitik.color;
-        ctx.fillRect(pitik.x, pitik.y, pitik.width, pitik.height);
-        
-        // Jengger Ayam (Pemanis visual)
-        ctx.fillStyle = "#FF0000";
-        ctx.fillRect(pitik.x + 25, pitik.y - 10, 10, 10);
+        // Gambar Aset Game
+        drawPitik();
+        drawObstacle(currentTheme);
 
-        // Gambar Rintangan (Kotak Cokelat)
-        ctx.fillStyle = obstacle.color;
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-
-        // Teks Skor dan Level
-        ctx.fillStyle = "#000000";
-        ctx.font = "20px Arial";
+        // UI Teks Bergaya Modern
+        ctx.save();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.font = "bold 20px Arial";
         ctx.textAlign = "left";
-        ctx.fillText("Gabah (Skor): " + score, 20, 30);
-        ctx.fillText("Level: " + level, 20, 60);
+        ctx.fillText("🌾 Gabah (Skor): " + score, 25, 40);
+        ctx.fillText("⭐ Level: " + level, 25, 70);
+        ctx.restore();
 
         requestAnimationFrame(update);
     }
 
-    // Jalankan game pertama kali
     update();
 </script>
 
