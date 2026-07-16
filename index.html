@@ -103,9 +103,9 @@
     </div>
 
     <div class="logo-footer">
-        <img src="formek.jpeg" alt="Fortune IV Logo" title="Fortune IV - Group 4" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/uploaded/formek.jpeg-374a06eb-4d2b-4a73-b096-e5f7dc322596';">
-        <img src="pkmoko.jpeg" alt="MOKO Logo" title="MOKO Game Development Projects" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/uploaded/pkmoko.jpeg-ca9a4653-8dfa-4697-b83e-1cbfa00a2fe2';">
-        <img src="smk.jpeg" alt="SMKN 1 Sanden Logo" title="SMKN 1 Sanden Bantul" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/uploaded/smk.jpeg-815820ba-3903-49c8-985e-be4693b93310';">
+        <img src="formek.jpeg" alt="Fortune IV Logo" title="Fortune IV - Group 4">
+        <img src="pkmoko.jpeg" alt="MOKO Logo" title="MOKO Game Development Projects">
+        <img src="smk.jpeg" alt="SMKN 1 Sanden Logo" title="SMKN 1 Sanden Bantul">
     </div>
 </div>
 
@@ -115,7 +115,7 @@
 
     // Tema per level ala ilustrasi Canva
     const themes = {
-        1: { // Pagi Ceria (Green Field)
+        1: {
             skyTop: "#4a90e2",
             skyBottom: "#b2ebf2",
             hillBack: "#2e7d32",
@@ -128,7 +128,7 @@
             hasStars: false,
             cloudAlpha: 0.6
         },
-        2: { // Sore Senja (Warm Autumn)
+        2: {
             skyTop: "#e65100",
             skyBottom: "#ffb74d",
             hillBack: "#bf360c",
@@ -141,7 +141,7 @@
             hasStars: false,
             cloudAlpha: 0.4
         },
-        3: { // Malam Berbintang (Midnight Forest)
+        3: {
             skyTop: "#0a1128",
             skyBottom: "#1c2541",
             hillBack: "#0b2510",
@@ -154,7 +154,7 @@
             hasStars: true,
             cloudAlpha: 0.15
         },
-        4: { // Dimensi Cyber/Neon (Synthwave Cyberpunk)
+        4: {
             skyTop: "#2d004d",
             skyBottom: "#d500f9",
             hillBack: "#4a0072",
@@ -163,7 +163,7 @@
             grassColor1: "#00e5ff",
             grassColor2: "#ff007f",
             rockColor: "#120024",
-            rockShadow: "#00e5ff", // Neon glow
+            rockShadow: "#00e5ff",
             hasStars: true,
             cloudAlpha: 0.3
         }
@@ -192,14 +192,12 @@
         speed: 7
     };
 
-    // Variabel Lingkungan Parallax & Kosmetik
     let score = 0;
     let level = 1;
     let gameOver = false;
     let stars = [];
     let clouds = [];
 
-    // Inisialisasi Bintang
     for (let i = 0; i < 50; i++) {
         stars.push({
             x: Math.random() * canvas.width,
@@ -209,7 +207,6 @@
         });
     }
 
-    // Inisialisasi Awan Bergerak
     for (let i = 0; i < 4; i++) {
         clouds.push({
             x: Math.random() * canvas.width,
@@ -219,7 +216,6 @@
         });
     }
 
-    // Input Listeners
     window.addEventListener("keydown", function(e) {
         if (e.code === "Space") {
             e.preventDefault();
@@ -253,11 +249,8 @@
         update();
     }
 
-    // Menggambar Lapisan Bukit Parallax (Latar Belakang ala Canva)
     function drawHills(theme) {
         ctx.save();
-        
-        // Bukit Jauh (Bergerak sangat lambat)
         ctx.fillStyle = theme.hillBack;
         ctx.beginPath();
         ctx.moveTo(0, 350);
@@ -267,7 +260,6 @@
         ctx.lineTo(0, 350);
         ctx.fill();
 
-        // Bukit Dekat (Warna lebih cerah/kontras)
         ctx.fillStyle = theme.hillFront;
         ctx.beginPath();
         ctx.moveTo(0, 350);
@@ -276,11 +268,9 @@
         ctx.lineTo(800, 350);
         ctx.lineTo(0, 350);
         ctx.fill();
-
         ctx.restore();
     }
 
-    // Menggambar Awan Vektor
     function drawClouds(theme) {
         ctx.save();
         ctx.fillStyle = `rgba(255, 255, 255, ${theme.cloudAlpha})`;
@@ -297,15 +287,11 @@
         ctx.restore();
     }
 
-    // Menggambar Rerumputan Rimbun Canva-Style secara Prosedural
     function drawLushGrass(theme) {
         ctx.save();
-        
-        // Lapisan dasar tanah
         ctx.fillStyle = theme.ground;
         ctx.fillRect(0, 350, canvas.width, 50);
 
-        // Gambar helai-helai rumput rimbun di sepanjang permukaan tanah
         const grassY = 352;
         ctx.lineWidth = 2.5;
         ctx.lineCap = "round";
@@ -314,14 +300,12 @@
             let h1 = 12 + Math.sin(x * 0.5) * 6; 
             let h2 = 8 + Math.cos(x * 0.3) * 4;
 
-            // Warna 1 (Rumput Belakang)
             ctx.strokeStyle = theme.grassColor1;
             ctx.beginPath();
             ctx.moveTo(x, grassY);
             ctx.quadraticCurveTo(x - 2, grassY - h1 * 0.5, x - 4, grassY - h1);
             ctx.stroke();
 
-            // Warna 2 (Rumput Depan)
             ctx.strokeStyle = theme.grassColor2;
             ctx.beginPath();
             ctx.moveTo(x + 3, grassY);
@@ -331,11 +315,8 @@
         ctx.restore();
     }
 
-    // Menggambar Karakter Pitik Estetik
     function drawPitik() {
         ctx.save();
-        
-        // Efek naik turun halus saat berjalan di tanah
         if (!pitik.isJumping && !gameOver) {
             pitik.bobOffset = Math.sin(Date.now() * 0.015) * 2;
         } else {
@@ -344,7 +325,6 @@
 
         ctx.translate(pitik.x, pitik.y + pitik.bobOffset);
 
-        // Efek Bayangan Kaki di Tanah
         if (!pitik.isJumping) {
             ctx.fillStyle = "rgba(0,0,0,0.15)";
             ctx.beginPath();
@@ -352,13 +332,11 @@
             ctx.fill();
         }
 
-        // Tubuh Utama (Bulat Sempurna ala Canva)
         ctx.fillStyle = "#FF9800";
         ctx.beginPath();
         ctx.arc(22, 22, 20, 0, Math.PI * 2);
         ctx.fill();
 
-        // Jengger Melengkung Cantik (Comb)
         ctx.fillStyle = "#E53935";
         ctx.beginPath();
         ctx.arc(14, -2, 7, 0, Math.PI * 2);
@@ -366,7 +344,6 @@
         ctx.arc(34, -1, 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Paruh Segitiga
         ctx.fillStyle = "#FFEB3B";
         ctx.beginPath();
         ctx.moveTo(38, 16);
@@ -375,7 +352,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Mata Besar yang Ekspresif
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.arc(28, 14, 6, 0, Math.PI * 2);
@@ -385,7 +361,6 @@
         ctx.arc(30, 14, 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Sayap Animasi (Mengepak saat melompat)
         if (pitik.isJumping) {
             pitik.wingAngle = Math.sin(Date.now() * 0.06) * 15;
         } else {
@@ -400,7 +375,6 @@
         ctx.fill();
         ctx.restore();
 
-        // Kaki Detail
         ctx.strokeStyle = "#FFEB3B";
         ctx.lineWidth = 3.5;
         ctx.beginPath();
@@ -416,12 +390,10 @@
         ctx.restore();
     }
 
-    // Menggambar Rintangan Bebatuan Alam
     function drawObstacle(theme) {
         ctx.save();
         ctx.fillStyle = theme.rockColor;
         
-        // Gambar struktur bebatuan asimetris alami
         ctx.beginPath();
         ctx.moveTo(obstacle.x + obstacle.width * 0.2, obstacle.y);
         ctx.lineTo(obstacle.x + obstacle.width * 0.8, obstacle.y + 3);
@@ -432,7 +404,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Efek garis tepi & Glow Khusus Level 4
         ctx.strokeStyle = theme.rockShadow;
         ctx.lineWidth = 3;
         if (level === 4) {
@@ -441,7 +412,6 @@
         }
         ctx.stroke();
 
-        // Tekstur retakan pada batu
         ctx.beginPath();
         ctx.moveTo(obstacle.x + obstacle.width * 0.4, obstacle.y + 8);
         ctx.lineTo(obstacle.x + obstacle.width * 0.5, obstacle.y + obstacle.height * 0.5);
@@ -453,12 +423,10 @@
         ctx.restore();
     }
 
-    // Loop Game Utama
     function update() {
         const currentTheme = themes[level] || themes[4];
 
         if (gameOver) {
-            // Overlay Game Over sinematik
             ctx.fillStyle = "rgba(10, 10, 15, 0.8)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -476,11 +444,9 @@
             return;
         }
 
-        // --- 1. LOGIKA FISIKA & PERGERAKAN ---
         pitik.velocityY += pitik.gravity;
         pitik.y += pitik.velocityY;
 
-        // Toleransi menapak di atas rimbunan rumput
         if (pitik.y >= 310) {
             pitik.y = 310;
             pitik.isJumping = false;
@@ -492,13 +458,11 @@
             obstacle.x = canvas.width;
             score += 10;
 
-            // Naik Level berdasarkan Skor
             if (score >= 50 && level === 1) { level = 2; obstacle.speed = 9; }
             else if (score >= 100 && level === 2) { level = 3; obstacle.speed = 11.5; }
             else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 14.5; }
         }
 
-        // --- 2. DETEKSI TABRAKAN ---
         if (
             pitik.x < obstacle.x + obstacle.width &&
             pitik.x + pitik.width > obstacle.x &&
@@ -508,17 +472,14 @@
             gameOver = true;
         }
 
-        // --- 3. PROSES GAMBAR (RENDER VISUAL) ---
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Gambar Gradasi Langit Indah
         let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
         skyGradient.addColorStop(0, currentTheme.skyTop);
         skyGradient.addColorStop(1, currentTheme.skyBottom);
         ctx.fillStyle = skyGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Gambar Efek Bintang berkelip (Level Malam & Cyber)
         if (currentTheme.hasStars) {
             stars.forEach(star => {
                 ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
@@ -529,18 +490,12 @@
             });
         }
 
-        // Gambar Awan Bergerak
         drawClouds(currentTheme);
-
-        // Gambar Bukit Latar Belakang (Parallax)
         drawHills(currentTheme);
-
-        // Gambar Elemen Utama & Rumput Rimbun Vektor
         drawObstacle(currentTheme);
         drawLushGrass(currentTheme);
         drawPitik();
 
-        // Desain UI Informasi Skor Terbuka & Bersih
         ctx.save();
         ctx.fillStyle = "#FFFFFF";
         ctx.shadowBlur = 5;
@@ -554,7 +509,6 @@
         requestAnimationFrame(update);
     }
 
-    // Jalankan game
     update();
 </script>
 
