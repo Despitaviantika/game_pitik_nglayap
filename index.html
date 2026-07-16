@@ -27,37 +27,9 @@
             align-items: center;
         }
 
-        /* Container Logo Header (Di Atas) */
-        .logo-header {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 25px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            padding: 12px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .logo-header img {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.5));
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
-
-        .logo-header img:hover {
-            transform: scale(1.1);
-            filter: drop-shadow(0px 5px 12px rgba(255, 255, 255, 0.3));
-        }
-
         h1 {
-            margin: 0 0 15px 0;
-            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            font-size: 2.3rem;
             font-weight: 800;
             letter-spacing: 3px;
             text-shadow: 0 4px 15px rgba(0,0,0,0.6);
@@ -70,6 +42,34 @@
 
         @keyframes shine {
             to { background-position: 200% center; }
+        }
+
+        /* Container Logo Header (Di Bawah Judul) */
+        .logo-header {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Jarak antar logo diperkecil */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            padding: 6px 18px; /* Padding diperkecil agar lebih ringkas */
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-header img {
+            height: 32px; /* Ukuran tinggi logo diperkecil dari 50px ke 32px */
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .logo-header img:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0px 4px 8px rgba(255, 255, 255, 0.3));
         }
 
         canvas {
@@ -95,13 +95,14 @@
 <body>
 
 <div id="gameContainer">
+    <h1>🐔 PITIK NGLAYAP</h1>
+
     <div class="logo-header">
         <img src="formek.jpeg" alt="Fortune IV Logo" title="Fortune IV - Group 4">
         <img src="pkmoko.jpeg" alt="MOKO Logo" title="MOKO Game Development Projects">
         <img src="smk.jpeg" alt="SMKN 1 Sanden Logo" title="SMKN 1 Sanden Bantul">
     </div>
 
-    <h1>🐔 PITIK NGLAYAP</h1>
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     
     <div class="info-panel">
@@ -194,323 +195,3 @@
 
     let score = 0;
     let level = 1;
-    let gameOver = false;
-    let stars = [];
-    let clouds = [];
-
-    for (let i = 0; i < 50; i++) {
-        stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * 180,
-            size: Math.random() * 2 + 0.5,
-            alpha: Math.random()
-        });
-    }
-
-    for (let i = 0; i < 4; i++) {
-        clouds.push({
-            x: Math.random() * canvas.width,
-            y: 30 + Math.random() * 60,
-            size: Math.random() * 30 + 20,
-            speed: Math.random() * 0.2 + 0.1
-        });
-    }
-
-    window.addEventListener("keydown", function(e) {
-        if (e.code === "Space") {
-            e.preventDefault();
-            lompat();
-        }
-    });
-
-    canvas.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        lompat();
-    });
-
-    function lompat() {
-        if (!pitik.isJumping && !gameOver) {
-            pitik.velocityY = pitik.jumpStrength;
-            pitik.isJumping = true;
-        }
-        if (gameOver) {
-            resetGame();
-        }
-    }
-
-    function resetGame() {
-        gameOver = false;
-        score = 0;
-        level = 1;
-        obstacle.speed = 7;
-        obstacle.x = canvas.width;
-        pitik.y = 310;
-        pitik.velocityY = 0;
-        update();
-    }
-
-    function drawHills(theme) {
-        ctx.save();
-        ctx.fillStyle = theme.hillBack;
-        ctx.beginPath();
-        ctx.moveTo(0, 350);
-        ctx.quadraticCurveTo(200, 200, 400, 350);
-        ctx.quadraticCurveTo(600, 180, 800, 350);
-        ctx.lineTo(800, 350);
-        ctx.lineTo(0, 350);
-        ctx.fill();
-
-        ctx.fillStyle = theme.hillFront;
-        ctx.beginPath();
-        ctx.moveTo(0, 350);
-        ctx.quadraticCurveTo(150, 260, 300, 350);
-        ctx.quadraticCurveTo(550, 240, 800, 350);
-        ctx.lineTo(800, 350);
-        ctx.lineTo(0, 350);
-        ctx.fill();
-        ctx.restore();
-    }
-
-    function drawClouds(theme) {
-        ctx.save();
-        ctx.fillStyle = `rgba(255, 255, 255, ${theme.cloudAlpha})`;
-        clouds.forEach(cloud => {
-            if (!gameOver) cloud.x -= cloud.speed;
-            if (cloud.x < -150) cloud.x = canvas.width + 50;
-
-            ctx.beginPath();
-            ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
-            ctx.arc(cloud.x + cloud.size * 0.6, cloud.y - cloud.size * 0.2, cloud.size * 0.8, 0, Math.PI * 2);
-            ctx.arc(cloud.x + cloud.size * 1.2, cloud.y, cloud.size * 0.7, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        ctx.restore();
-    }
-
-    function drawLushGrass(theme) {
-        ctx.save();
-        ctx.fillStyle = theme.ground;
-        ctx.fillRect(0, 350, canvas.width, 50);
-
-        const grassY = 352;
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = "round";
-
-        for (let x = 0; x < canvas.width; x += 6) {
-            let h1 = 12 + Math.sin(x * 0.5) * 6; 
-            let h2 = 8 + Math.cos(x * 0.3) * 4;
-
-            ctx.strokeStyle = theme.grassColor1;
-            ctx.beginPath();
-            ctx.moveTo(x, grassY);
-            ctx.quadraticCurveTo(x - 2, grassY - h1 * 0.5, x - 4, grassY - h1);
-            ctx.stroke();
-
-            ctx.strokeStyle = theme.grassColor2;
-            ctx.beginPath();
-            ctx.moveTo(x + 3, grassY);
-            ctx.quadraticCurveTo(x + 4, grassY - h2 * 0.5, x + 6, grassY - h2);
-            ctx.stroke();
-        }
-        ctx.restore();
-    }
-
-    function drawPitik() {
-        ctx.save();
-        if (!pitik.isJumping && !gameOver) {
-            pitik.bobOffset = Math.sin(Date.now() * 0.015) * 2;
-        } else {
-            pitik.bobOffset = 0;
-        }
-
-        ctx.translate(pitik.x, pitik.y + pitik.bobOffset);
-
-        if (!pitik.isJumping) {
-            ctx.fillStyle = "rgba(0,0,0,0.15)";
-            ctx.beginPath();
-            ctx.ellipse(20, 42 - pitik.bobOffset, 15, 4, 0, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.fillStyle = "#FF9800";
-        ctx.beginPath();
-        ctx.arc(22, 22, 20, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#E53935";
-        ctx.beginPath();
-        ctx.arc(14, -2, 7, 0, Math.PI * 2);
-        ctx.arc(24, -5, 9, 0, Math.PI * 2);
-        ctx.arc(34, -1, 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#FFEB3B";
-        ctx.beginPath();
-        ctx.moveTo(38, 16);
-        ctx.lineTo(49, 22);
-        ctx.lineTo(38, 27);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = "#FFFFFF";
-        ctx.beginPath();
-        ctx.arc(28, 14, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#000000";
-        ctx.beginPath();
-        ctx.arc(30, 14, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (pitik.isJumping) {
-            pitik.wingAngle = Math.sin(Date.now() * 0.06) * 15;
-        } else {
-            pitik.wingAngle = Math.sin(Date.now() * 0.01) * 3;
-        }
-        ctx.save();
-        ctx.translate(10, 24);
-        ctx.rotate((pitik.wingAngle * Math.PI) / 180);
-        ctx.fillStyle = "#F57C00";
-        ctx.beginPath();
-        ctx.ellipse(0, 0, 13, 8, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-
-        ctx.strokeStyle = "#FFEB3B";
-        ctx.lineWidth = 3.5;
-        ctx.beginPath();
-        ctx.moveTo(14, 38); ctx.lineTo(14, 44);
-        ctx.moveTo(14, 44); ctx.lineTo(10, 46);
-        ctx.moveTo(14, 44); ctx.lineTo(18, 46);
-
-        ctx.moveTo(24, 38); ctx.lineTo(24, 44);
-        ctx.moveTo(24, 44); ctx.lineTo(20, 46);
-        ctx.moveTo(24, 44); ctx.lineTo(28, 46);
-        ctx.stroke();
-
-        ctx.restore();
-    }
-
-    function drawObstacle(theme) {
-        ctx.save();
-        ctx.fillStyle = theme.rockColor;
-        
-        ctx.beginPath();
-        ctx.moveTo(obstacle.x + obstacle.width * 0.2, obstacle.y);
-        ctx.lineTo(obstacle.x + obstacle.width * 0.8, obstacle.y + 3);
-        ctx.lineTo(obstacle.x + obstacle.width, obstacle.y + obstacle.height * 0.4);
-        ctx.lineTo(obstacle.x + obstacle.width * 0.9, obstacle.y + obstacle.height);
-        ctx.lineTo(obstacle.x + obstacle.width * 0.1, obstacle.y + obstacle.height);
-        ctx.lineTo(obstacle.x, obstacle.y + obstacle.height * 0.5);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = theme.rockShadow;
-        ctx.lineWidth = 3;
-        if (level === 4) {
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = theme.rockShadow;
-        }
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(obstacle.x + obstacle.width * 0.4, obstacle.y + 8);
-        ctx.lineTo(obstacle.x + obstacle.width * 0.5, obstacle.y + obstacle.height * 0.5);
-        ctx.lineTo(obstacle.x + obstacle.width * 0.25, obstacle.y + obstacle.height * 0.8);
-        ctx.strokeStyle = "rgba(0,0,0,0.25)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.restore();
-    }
-
-    function update() {
-        const currentTheme = themes[level] || themes[4];
-
-        if (gameOver) {
-            ctx.fillStyle = "rgba(10, 10, 15, 0.8)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "#FF1744";
-            ctx.fillStyle = "#FF1744";
-            ctx.font = "bold 38px system-ui, sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("PITIK NABRAK!", canvas.width / 2, canvas.height / 2 - 15);
-            
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = "#E0E0E0";
-            ctx.font = "500 18px system-ui, sans-serif";
-            ctx.fillText("Tekan SPASI atau TAP untuk Baleni (Mulai Ulang)", canvas.width / 2, canvas.height / 2 + 35);
-            return;
-        }
-
-        pitik.velocityY += pitik.gravity;
-        pitik.y += pitik.velocityY;
-
-        if (pitik.y >= 310) {
-            pitik.y = 310;
-            pitik.isJumping = false;
-        }
-
-        obstacle.x -= obstacle.speed;
-
-        if (obstacle.x < -obstacle.width) {
-            obstacle.x = canvas.width;
-            score += 10;
-
-            if (score >= 50 && level === 1) { level = 2; obstacle.speed = 9; }
-            else if (score >= 100 && level === 2) { level = 3; obstacle.speed = 11.5; }
-            else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 14.5; }
-        }
-
-        if (
-            pitik.x < obstacle.x + obstacle.width &&
-            pitik.x + pitik.width > obstacle.x &&
-            pitik.y < obstacle.y + obstacle.height &&
-            pitik.y + pitik.height > obstacle.y
-        ) {
-            gameOver = true;
-        }
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        skyGradient.addColorStop(0, currentTheme.skyTop);
-        skyGradient.addColorStop(1, currentTheme.skyBottom);
-        ctx.fillStyle = skyGradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (currentTheme.hasStars) {
-            stars.forEach(star => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-                ctx.fillRect(star.x, star.y, star.size, star.size);
-                star.alpha += (Math.random() - 0.5) * 0.08;
-                if (star.alpha < 0.2) star.alpha = 0.2;
-                if (star.alpha > 1) star.alpha = 1;
-            });
-        }
-
-        drawClouds(currentTheme);
-        drawHills(currentTheme);
-        drawObstacle(currentTheme);
-        drawLushGrass(currentTheme);
-        drawPitik();
-
-        ctx.save();
-        ctx.fillStyle = "#FFFFFF";
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = "rgba(0,0,0,0.4)";
-        ctx.font = "600 20px system-ui, sans-serif";
-        ctx.textAlign = "left";
-        ctx.fillText("🌾 Gabah (Skor): " + score, 30, 45);
-        ctx.fillText("⭐ Level: " + level, 30, 75);
-        ctx.restore();
-
-        requestAnimationFrame(update);
-    }
-
-    update();
-</script>
-
-</body>
-</html>
