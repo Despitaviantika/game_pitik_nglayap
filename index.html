@@ -27,6 +27,34 @@
             align-items: center;
         }
 
+        /* Container Logo Header (Di Atas) */
+        .logo-header {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            padding: 12px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-header img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .logo-header img:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0px 5px 12px rgba(255, 255, 255, 0.3));
+        }
+
         h1 {
             margin: 0 0 15px 0;
             font-size: 2.5rem;
@@ -62,50 +90,22 @@
             display: inline-block;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
-        /* Container Logo Footer */
-        .logo-footer {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 25px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(8px);
-            padding: 12px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .logo-footer img {
-            height: 50px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.5));
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
-
-        .logo-footer img:hover {
-            transform: scale(1.1);
-            filter: drop-shadow(0px 5px 12px rgba(255, 255, 255, 0.3));
-        }
     </style>
 </head>
 <body>
 
 <div id="gameContainer">
+    <div class="logo-header">
+        <img src="formek.jpeg" alt="Fortune IV Logo" title="Fortune IV - Group 4">
+        <img src="pkmoko.jpeg" alt="MOKO Logo" title="MOKO Game Development Projects">
+        <img src="smk.jpeg" alt="SMKN 1 Sanden Logo" title="SMKN 1 Sanden Bantul">
+    </div>
+
     <h1>🐔 PITIK NGLAYAP</h1>
     <canvas id="gameCanvas" width="800" height="400"></canvas>
     
     <div class="info-panel">
         🎮 <strong>Kontrol:</strong> Tekan Tombol <strong>SPASI</strong> atau <strong>TAP LAYAR</strong> untuk melompat.
-    </div>
-
-    <div class="logo-footer">
-        <img src="formek.jpeg" alt="Fortune IV Logo" title="Fortune IV - Group 4">
-        <img src="pkmoko.jpeg" alt="MOKO Logo" title="MOKO Game Development Projects">
-        <img src="smk.jpeg" alt="SMKN 1 Sanden Logo" title="SMKN 1 Sanden Bantul">
     </div>
 </div>
 
