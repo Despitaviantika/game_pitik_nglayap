@@ -37,7 +37,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Container Logo (Di Bawah Judul) */
         .logo-header {
             margin-bottom: 15px;
             display: flex;
@@ -51,7 +50,7 @@
         }
 
         .logo-header img {
-            height: 30px; /* Ukuran logo kecil & rapi */
+            height: 30px;
             width: auto;
             object-fit: contain;
             border-radius: 4px;
@@ -97,12 +96,11 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Tema per level
     const themes = {
-        1: { skyTop: "#4a90e2", skyBottom: "#b2ebf2", hillBack: "#2e7d32", hillFront: "#388e3c", ground: "#1b5e20", grass1: "#4caf50", grass2: "#81c784", rock: "#78909c" },
-        2: { skyTop: "#e65100", skyBottom: "#ffb74d", hillBack: "#bf360c", hillFront: "#d84315", ground: "#8d6e63", grass1: "#ff7043", grass2: "#ffb74d", rock: "#5d4037" },
-        3: { skyTop: "#0a1128", skyBottom: "#1c2541", hillBack: "#0b2510", hillFront: "#143619", ground: "#0b1d12", grass1: "#2e7d32", grass2: "#1b5e20", rock: "#37474f" },
-        4: { skyTop: "#2d004d", skyBottom: "#d500f9", hillBack: "#4a0072", hillFront: "#7b1fa2", ground: "#1a0033", grass1: "#00e5ff", grass2: "#ff007f", rock: "#120024" }
+        1: { skyTop: "#4a90e2", skyBottom: "#b2ebf2", hillBack: "#2e7d32", hillFront: "#388e3c", ground: "#1b5e20", rock: "#78909c" },
+        2: { skyTop: "#e65100", skyBottom: "#ffb74d", hillBack: "#bf360c", hillFront: "#d84315", ground: "#8d6e63", rock: "#5d4037" },
+        3: { skyTop: "#0a1128", skyBottom: "#1c2541", hillBack: "#0b2510", hillFront: "#143619", ground: "#0b1d12", rock: "#37474f" },
+        4: { skyTop: "#2d004d", skyBottom: "#d500f9", hillBack: "#4a0072", hillFront: "#7b1fa2", ground: "#1a0033", rock: "#120024" }
     };
 
     const pitik = { x: 120, y: 310, width: 40, height: 40, velocityY: 0, gravity: 0.6, jumpStrength: -12, isJumping: false };
@@ -149,13 +147,11 @@
         ctx.save();
         ctx.translate(pitik.x, pitik.y);
         
-        // Badan
         ctx.fillStyle = "#FF9800";
         ctx.beginPath();
         ctx.arc(20, 20, 18, 0, Math.PI * 2);
         ctx.fill();
 
-        // Jengger
         ctx.fillStyle = "#E53935";
         ctx.beginPath();
         ctx.arc(14, 2, 5, 0, Math.PI * 2);
@@ -163,7 +159,6 @@
         ctx.arc(28, 3, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Paruh
         ctx.fillStyle = "#FFEB3B";
         ctx.beginPath();
         ctx.moveTo(34, 16);
@@ -172,7 +167,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // Mata
         ctx.fillStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.arc(26, 14, 5, 0, Math.PI * 2);
@@ -182,7 +176,6 @@
         ctx.arc(28, 14, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Sayap
         ctx.fillStyle = "#F57C00";
         ctx.beginPath();
         ctx.ellipse(10, 22, 10, 6, 0, 0, Math.PI * 2);
@@ -220,7 +213,6 @@
             return;
         }
 
-        // Fisika Lompat
         pitik.velocityY += pitik.gravity;
         pitik.y += pitik.velocityY;
 
@@ -229,7 +221,6 @@
             pitik.isJumping = false;
         }
 
-        // Gerak Rintangan
         obstacle.x -= obstacle.speed;
         if (obstacle.x < -obstacle.width) {
             obstacle.x = canvas.width;
@@ -239,7 +230,6 @@
             else if (score >= 150 && level === 3) { level = 4; obstacle.speed = 13; }
         }
 
-        // Deteksi Tabrakan
         if (
             pitik.x < obstacle.x + obstacle.width &&
             pitik.x + pitik.width > obstacle.x &&
@@ -249,7 +239,6 @@
             gameOver = true;
         }
 
-        // Render Background
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grad.addColorStop(0, theme.skyTop);
@@ -257,7 +246,6 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Gunung / Bukitan
         ctx.fillStyle = theme.hillBack;
         ctx.beginPath();
         ctx.arc(200, 450, 250, 0, Math.PI * 2);
@@ -269,15 +257,12 @@
         ctx.arc(400, 480, 280, 0, Math.PI * 2);
         ctx.fill();
 
-        // Tanah & Rumput
         ctx.fillStyle = theme.ground;
         ctx.fillRect(0, 350, canvas.width, 50);
 
-        // Draw Element
         drawObstacle(theme);
         drawPitik();
 
-        // Skor & Level
         ctx.fillStyle = "#FFFFFF";
         ctx.font = "bold 18px sans-serif";
         ctx.textAlign = "left";
